@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario del Almacén</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .add-product-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+        }
+
+        .image-upload-section {
+            background: white;
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-section:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+
+        .image-upload-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .upload-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-file {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-file:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-paste {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-paste:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        .btn-url {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .btn-url:hover {
+            background: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(39, 174, 96, 0.3);
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.2);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #f1f2f6;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f8f9fa;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .product-quantity {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quantity-label {
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .quantity-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state img {
+            width: 150px;
+            height: 150px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+
+        .url-input-container {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-load-url {
+            background: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-load-url:hover {
+            background: #2980b9;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .image-upload-options {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .upload-btn {
+                width: 200px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .add-product-form {
+                padding: 20px;
+            }
+
+            .product-info {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Inventario del Almacén</h1>
+            <p>Organiza la compra de la casa con el inventario</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Formulario para agregar productos -->
+            <div class="add-product-form">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">➕ Agregar Nuevo Producto</h2>
+                
+                <div class="form-group">
+                    <label for="productName">Nombre del Producto</label>
+                    <input type="text" id="productName" placeholder="Ej: Habichuelas GOYA">
+                </div>
+
+                <div class="form-group">
+                    <label for="productQuantity">Cantidad</label>
+                    <input type="number" id="productQuantity" min="1" value="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Imagen del Producto</label>
+                    <div class="image-upload-section">
+                        <p>Selecciona cómo quieres agregar la imagen:</p>
+                        <div class="image-upload-options">
+                            <button class="upload-btn btn-file" onclick="selectFile()">
+                                📁 Seleccionar Archivo
+                            </button>
+                            <button class="upload-btn btn-paste" onclick="pasteFromClipboard()">
+                                📋 Pegar
+                            </button>
+                            <button class="upload-btn btn-url" onclick="toggleUrlInput()">
+                                🌐 URL de Imagen
+                            </button>
+                        </div>
+                        
+                        <div class="url-input-container" id="urlInputContainer">
+                            <input type="text" class="url-input" id="imageUrl" placeholder="Pega aquí la URL de la imagen">
+                            <button class="btn-load-url" onclick="loadImageFromUrl()">Cargar Imagen</button>
+                        </div>
+
+                        <div class="image-preview" id="imagePreview">
+                            <p style="color: #7f8c8d; margin-top: 10px;">La imagen aparecerá aquí</p>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+
+                <button class="btn-primary" onclick="addProduct()">➕ Agregar Producto</button>
+            </div>
+
+            <!-- Búsqueda -->
+            <div class="search-section">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar productos..." onkeyup="filterProducts()">
+            </div>
+
+            <!-- Grid de productos -->
+            <div class="products-grid" id="productsGrid">
+                <!-- Los productos se mostrarán aquí -->
+            </div>
+
+            <!-- Estado vacío -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div style="font-size: 80px;">📦</div>
+                <h3>No hay productos en el inventario</h3>
+                <p>Agrega tu primer producto usando el formulario de arriba</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variable global para almacenar la imagen actual
+        let currentImage = null;
+        
+        // Array para almacenar todos los productos
+        let products = [];
+
+        // Cargar productos desde localStorage al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProductsFromStorage();
+            displayProducts();
+        });
+
+        // Función para seleccionar archivo desde el sistema
+        function selectFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Manejar selección de archivo
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImage = e.target.result;
+                    showImagePreview(currentImage);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Por favor selecciona un archivo de imagen válido.');
+            }
+        }
+
+        // Función para pegar imagen desde portapapeles
+        async function pasteFromClipboard() {
+            try {
+                const clipboardItems = await navigator.clipboard.read();
+                for (const clipboardItem of clipboardItems) {
+                    for (const type of clipboardItem.types) {
+                        if (type.startsWith('image/')) {
+                            const blob = await clipboardItem.getType(type);
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                currentImage = e.target.result;
+                                showImagePreview(currentImage);
+                            };
+                            reader.readAsDataURL(blob);
+                            return;
+                        }
+                    }
+                }
+                alert('No se encontró ninguna imagen. Copia una imagen primero.');
+            } catch (err) {
+                console.error('Error al acceder al portapapeles:', err);
+                alert('No se pudo acceder al portapapeles. Asegúrate de que el navegador tenga permisos.');
+            }
+        }
+
+        // Mostrar/ocultar input de URL
+        function toggleUrlInput() {
+            const container = document.getElementById('urlInputContainer');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Cargar imagen desde URL
+        function loadImageFromUrl() {
+            const url = document.getElementById('imageUrl').value.trim();
+            if (url) {
+                // Verificar si la URL es válida
+                const img = new Image();
+                img.onload = function() {
+                    currentImage = url;
+                    showImagePreview(url);
+                    document.getElementById('imageUrl').value = '';
+                    document.getElementById('urlInputContainer').style.display = 'none';
+                };
+                img.onerror = function() {
+                    alert('No se pudo cargar la imagen desde esta URL. Verifica que sea correcta.');
+                };
+                img.src = url;
+            } else {
+                alert('Por favor ingresa una URL válida.');
+            }
+        }
+
+        // Mostrar vista previa de la imagen
+        function showImagePreview(imageSrc) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = `<img src="${imageSrc}" alt="Vista previa" style="max-width: 150px; max-height: 150px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">`;
+        }
+
+        // Función para agregar producto
+        function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const quantity = parseInt(document.getElementById('productQuantity').value);
+
+            // Validaciones
+            if (!name) {
+                alert('Por favor ingresa el nombre del producto.');
+                return;
+            }
+
+            if (!quantity || quantity < 1) {
+                alert('Por favor ingresa una cantidad válida.');
+                return;
+            }
+
+            if (!currentImage) {
+                alert('Por favor selecciona una imagen para el producto.');
+                return;
+            }
+
+            // Crear nuevo producto
+            const newProduct = {
+                id: Date.now(), // ID único basado en timestamp
+                name: name,
+                quantity: quantity,
+                image: currentImage
+            };
+
+            // Agregar al array de productos
+            products.push(newProduct);
+
+            // Guardar en localStorage
+            saveProductsToStorage();
+
+            // Mostrar productos actualizados
+            displayProducts();
+
+            // Limpiar formulario
+            clearForm();
+
+            // Mostrar mensaje de éxito
+            showSuccessMessage('Producto agregado exitosamente!');
+        }
+
+        // Función para limpiar el formulario
+        function clearForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productQuantity').value = '1';
+            document.getElementById('imagePreview').innerHTML = '<p style="color: #7f8c8d; margin-top: 10px;">La imagen aparecerá aquí</p>';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('imageUrl').value = '';
+            document.getElementById('urlInputContainer').style.display = 'none';
+            currentImage = null;
+        }
+
+        // Función para mostrar todos los productos
+        function displayProducts() {
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            // Filtrar productos basado en búsqueda
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm)
+            );
+
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            grid.innerHTML = filteredProducts.map(product => `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;200&quot; height=&quot;200&quot; viewBox=&quot;0 0 200 200&quot;><rect width=&quot;200&quot; height=&quot;200&quot; fill=&quot;%23f8f9fa&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; text-anchor=&quot;middle&quot; dy=&quot;.3em&quot; font-family=&quot;Arial&quot; font-size=&quot;16&quot; fill=&quot;%236c757d&quot;>Sin imagen</text></svg>'">
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-quantity">
+                            <span class="quantity-label">Cantidad:</span>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="updateQuantity(${product.id}, -1)">-</button>
+                                <span class="quantity-display">${product.quantity}</span>
+                                <button class="quantity-btn" onclick="updateQuantity(${product.id}, 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-delete" onclick="deleteProduct(${product.id})">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Función para actualizar la cantidad de un producto
+        function updateQuantity(productId, change) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const newQuantity = product.quantity + change;
+                if (newQuantity >= 0) {
+                    product.quantity = newQuantity;
+                    saveProductsToStorage();
+                    displayProducts();
+                }
+            }
+        }
+
+        // Función para eliminar un producto
+        function deleteProduct(productId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                products = products.filter(p => p.id !== productId);
+                saveProductsToStorage();
+                displayProducts();
+                showSuccessMessage('Producto eliminado exitosamente!');
+            }
+        }
+
+        // Función para filtrar productos en tiempo real
+        function filterProducts() {
+            displayProducts();
+        }
+
+        // Función para guardar productos en localStorage
+        function saveProductsToStorage() {
+            try {
+                // Convertir productos a JSON y guardar
+                const productsJson = JSON.stringify(products);
+                // Usamos una variable global en lugar de localStorage
+                window.inventoryData = productsJson;
+            } catch (error) {
+                console.error('Error al guardar productos:', error);
+                alert('Error al guardar los datos. Por favor intenta de nuevo.');
+            }
+        }
+
+        // Función para cargar productos desde localStorage
+        function loadProductsFromStorage() {
+            try {
+                // Cargar desde la variable global
+                const savedProducts = window.inventoryData;
+                if (savedProducts) {
+                    products = JSON.parse(savedProducts);
+                }
+            } catch (error) {
+                console.error('Error al cargar productos:', error);
+                products = [];
+            }
+        }
+
+        // Función para mostrar mensaje de éxito
+        function showSuccessMessage(message) {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #27ae60;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Agregar animación
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                    document.head.removeChild(style);
+                }, 300);
+            }, 3000);
+        }
+
+        // Manejar pegado de imágenes en toda la página
+        document.addEventListener('paste', function(e) {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentImage = event.target.result;
+                        showImagePreview(currentImage);
+                        showSuccessMessage('Imagen pegada desde el portapapeles!');
+                    };
+                    reader.readAsDataURL(blob);
+                    break;
+                }
+            }
+        });
+
+        // Prevenir comportamiento por defecto del drag and drop
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentImage = event.target.result;
+                    showImagePreview(currentImage);
+                    showSuccessMessage('Imagen cargada mediante arrastrar y soltar!');
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+    </script>
+</body>
+</html>
